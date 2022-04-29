@@ -4,10 +4,21 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    command: 'python main.py'
     ports:
       - 8001:5000
     volumes:
       - .:/app
+    depends_on:
+      - db
+    networks:
+      - rabbitNet
+
+  queue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'python consumer.py'
     depends_on:
       - db
     networks:
@@ -25,19 +36,6 @@ services:
       - .dbdata:/var/lib/mysql
     ports:
       - 33067:3306
-    networks:
-      - rabbitNet
-  
-
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: 'rabbitmq'
-    ports:
-      - 5672:5672
-      - 15672:15672
-    volumes:
-      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
-      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     networks:
       - rabbitNet
 
